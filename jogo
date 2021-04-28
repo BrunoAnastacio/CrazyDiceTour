@@ -1,0 +1,251 @@
+from random import randint as dado
+from functools import reduce
+from os import system, name
+from sys import exit
+from time import sleep
+
+#adicionar jogadores
+#limitar os niveis a 10
+#adicionar final
+#adicionar instruções
+#tratamento de erros (fazendo...)
+#clean code (fazendo...)
+
+
+def limpar_tela():
+    if name == 'nt':
+        _ = system('cls') #windows
+    else:
+        _ = system('clear') #mac, linux
+
+
+
+def cabecalho_inicio():
+    print("========CRAZY DICE TOUR!!=======")
+    print("====by BRUNO ANASTACIO - 2020===")
+    print("\n")
+    
+
+
+def cabecalho_jogo(pontos, nivel, moedas):
+    print("========CRAZY DICE TOUR!!=======")
+    print("Pontos: {}  Nível: {}  Moedas: {}" .format(pontos, nivel, moedas))
+
+
+
+def pegar_nome_do_jogador():
+    nome_jogador = input("Qual é o seu nome? ")
+    return nome_jogador
+
+   
+
+def comecar(nome):
+    print("{}, está pronto para vencer o Crazy Dice Tour???".format(nome))
+    sleep(1)
+    start = str(input("\n\nSe sim, digite 1 pra comecar... "))
+    if start == "1":
+        return start
+    else:
+        print("Caractere inválido!")
+        comecar()
+
+
+def conheca_seu_adversario(nivel):
+    from random import randint
+    lista_de_adversarios = {
+    1: ("Lucia", "Osasco/Brasil", "- Se você achar que eu estou derrotado, saiba que ainda estão rolando os dados... Porque o tempo, o tempo não para! (Cazuza)"),
+
+    2: ("Joric", "Belgrado/Servia", "- Eu acredito demais na sorte. E tenho constatado que, quanto mais duro eu trabalho, mais sorte eu tenho. (Coleman Cox)"),
+
+    3: ("Matt", "Londres/Reino Unido", "- Deus não joga dados com o universo. (Albert Einstein)"),
+
+    4: ("Swanson", "Estocolmo/Suecia", "- Homens fracos acreditam na sorte. Homens fortes acreditam em causa e efeito. (Ralph Waldo Emerson)" ),
+
+    5: ("Lukongo", "Nairobi/Quênia", "- Então Einstein estava errado quando disse: 'Deus não joga aos dados'. A consideração dos buracos negros sugere não apenas que Deus joga aos dados, como que às vezes nos confunde, jogando-os onde eles não podem ser vistos. (Stephen Hawking)" ),
+
+    6: ("Akira", "Osaka/Japão", "- A sorte ajuda os audazes. (Virgilio)"),
+
+    7: ("Nikolai", "São Petesburgo/Russia", "- A maioria dos deuses joga dados, mas o destino joga xadrez, e você não descobre até que seja tarde demais que ele estava jogando com duas rainhas o tempo todo. (Terry Pratchett)" ),
+
+    8: ("Giovano", "Bergamo/Italia", "- Sorte é estar pronto quando a oportunidade vem.(Oprah Winfrey)" )}
+
+    sorteio = randint(1,8)
+
+    print("\nSeu adversário: ", lista_de_adversarios[sorteio][0])
+    sleep(1)
+    print("\nLocalidade: ", lista_de_adversarios[sorteio][1])
+    sleep(1)
+    print("\n", lista_de_adversarios[sorteio][2])
+    sleep(1)
+    
+    proxima_tela()
+
+    return lista_de_adversarios[sorteio]
+
+
+
+
+def sair():
+    #permite o usuario sair do jogo ou jogar novamente
+    print("\n===========================")
+    opcao = int(input("\nDigite 1 para sair, 2 para jogar novamente: "))
+    if opcao == 1:  
+        exit("Saída efetuada") 
+    elif opcao == 2:
+        limpar_tela()
+        tela_inicial()
+
+    else:
+        print("Caractere invalido!")
+        sair()   
+
+
+
+def proxima_tela():
+    #permite o usuario passar à prox. tela
+    print("===========================")
+    if(input("\nDigite 1 para continuar: ")):
+        limpar_tela()
+
+
+#refatorar a partir daqui
+def jogo(pontos, numero_maximo_dado_cpu, moedas, nivel, total_pontos, game_over, nome_jogador, nome_cpu):
+    
+    while not game_over:
+
+        nome_cpu = "CPU"
+        jogada_jogador = []
+        jogada_cpu = []
+        refazer_jogada = True
+
+        while refazer_jogada:
+            nome_cpu = tela_apresentar_adversario(pontos, nivel, moedas)
+            jogada_jogador = []
+
+            #lançamento dos dados
+            for i in range(3):
+                jogada_jogador.append(dado(1,6))
+                #para evitar repetição da jogada do CPU quando jogada do jogador estiver sendo feita
+                if(len(jogada_cpu) < 3): 
+                    jogada_cpu.append(dado(1,numero_maximo_dado_cpu))
+                #------------------
+
+            #sua jogada
+            cabecalho_jogo(total_pontos, nivel, moedas)
+            soma_jogador = sum(jogada_jogador)
+            print("Lancando os dados...")
+            sleep(3)
+            print("Dados lançados!")
+            sleep(1)
+
+            if soma_jogador > 11:
+                print("\nTREINADOR: -- Grande jogada, %s!" % nome_jogador)
+                sleep(1)
+
+            #jogada do adversario
+            soma_cpu = sum(jogada_cpu)
+
+            if (soma_cpu > (numero_maximo_dado_cpu * 3) * 0,75):
+                print("\nREPORTER: -- O seu adversário fez uma grande jogada!")
+                sleep(1)
+                print("\nJUIZ: -- Quer refazer a sua jogada? Isso te custará uma moeda!")
+                sleep(1)
+                opcao = int(input("Digite '1' se SIM, ou '0' se NÃO: "))
+
+                if not moedas:
+                    print("\nJUIZ: Você não tem mais jogadas adicionais")
+                    sleep(1)
+                else:
+                    moedas -= 1
+                    refazer_jogada = opcao
+                    limpar_tela()
+            else:
+                sleep(2)
+                limpar_tela()
+
+        #dados na mesa
+        cabecalho_jogo(total_pontos, nivel, moedas)
+        print("================================")
+        print("Sua jogada: ", jogada_jogador)
+        print("Soma da jogada:", soma_jogador)
+        print("\n Jogada de CPU: ", jogada_cpu)
+        print("Soma da jogada: ", soma_cpu)
+        print("\n {} {} - {} {}" .format(nome_jogador, soma_jogador, soma_cpu, nome_cpu))
+        print("================================")
+
+        #resultados
+        if soma_jogador > soma_cpu:
+            print("\nParabens, você está na próxima fase")
+
+            nivel += 1
+            total_pontos += soma_jogador * (nivel * 10)
+            moedas += 2
+
+            if numero_maximo_dado_cpu < 6:
+                numero_maximo_dado_cpu += 1
+
+            proxima_tela()
+        else:
+            print("\nGame over!")
+            game_over = True
+            print("Pontos conquistados: ", total_pontos)
+            gravar_recorde(nome_jogador, total_pontos, nivel)
+            print("Dados salvos!")
+            sair()
+            jogo()
+
+#não funciona - verificar   
+def gravar_recorde(nome_jogador, total_pontos, nivel):
+    arquivo = open("bd_record.txt", "a")
+    arquivo.write = (nome_jogador)
+    arquivo.write = (total_pontos)
+    arquivo.write = (nivel)
+    arquivo.write = ("\n")
+    arquivo.close()
+
+#=================================================           
+#=========funções de interface====================
+def tela_inicial():
+    limpar_tela()
+    cabecalho_inicio()
+    sleep(2)
+
+def tela_nome_jogador(pontos, nivel, moedas):
+    #pontos, nivel, moeda = 0
+    limpar_tela()
+    cabecalho_jogo(pontos, nivel, moedas)
+    return pegar_nome_do_jogador()
+
+def tela_de_start(pontos, nivel, moedas, nome_jogador):
+    limpar_tela()
+    cabecalho_jogo(pontos, nivel, moedas)
+    comecar(nome_jogador)
+
+def tela_apresentar_adversario(pontos, nivel, moeda):
+    limpar_tela()
+    cabecalho_jogo(pontos, nivel, moeda)
+    return conheca_seu_adversario(nivel)
+
+def tela_de_jogo(pontos, nivel, moedas, numero_maximo_dado_cpu, total_pontos, game_over, nome_jogador, nome_cpu):
+    limpar_tela()
+    #cabecalho_jogo(pontos, nivel, moedas)
+    jogo(pontos, numero_maximo_dado_cpu, moedas, nivel, total_pontos, game_over, nome_jogador, nome_cpu)
+
+
+
+  
+#Execução
+pontos = 0
+nivel = 1
+moedas = 5
+numero_maximo_dado_cpu = 3
+total_pontos = 0
+game_over = False
+nome_jogador = ""
+nome_cpu = ""
+
+tela_inicial()
+nome_jogador = tela_nome_jogador(pontos, nivel, moedas)
+tela_de_start(pontos, nivel, moedas, nome_jogador)
+#nome_cpu = tela_apresentar_adversario(pontos, nivel, moedas)
+tela_de_jogo(pontos, nivel, moedas, numero_maximo_dado_cpu, total_pontos, game_over, nome_jogador, tela_apresentar_adversario(pontos, nivel, moedas))
